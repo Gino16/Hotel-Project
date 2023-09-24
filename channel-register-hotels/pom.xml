@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.1.4</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+  <groupId>com.gino.hotel</groupId>
+  <artifactId>channel-register-hotels</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>channel-register-hotels</name>
+  <description>Demo project for Spring Boot</description>
+  <properties>
+    <java.version>17</java.version>
+    <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+    <org.lombok.version>1.18.26</org.lombok.version>
+
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+      <version>4.0.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+      <version>${org.lombok.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${org.mapstruct.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.azure</groupId>
+      <artifactId>azure-storage-blob</artifactId>
+      <version>12.22.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!--	START Swagger Generator Dependency	-->
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>2.2.8</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openapitools</groupId>
+      <artifactId>jackson-databind-nullable</artifactId>
+      <version>0.2.6</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>3.0.2</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>6.6.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>
+                ${project.basedir}/src/main/resources/openapi.yaml
+              </inputSpec>
+              <generatorName>spring</generatorName>
+              <apiPackage>com.gino.hotel.channelregisterhotels.api</apiPackage>
+              <modelPackage>com.gino.hotel.channelregisterhotels.model</modelPackage>
+              <supportingFilesToGenerate>
+                ApiUtil.java
+              </supportingFilesToGenerate>
+              <configOptions>
+                <interfaceOnly>true</interfaceOnly>
+                <reactive>true</reactive>
+                <delegatePattern>true</delegatePattern>
+                <useJakartaEe>true</useJakartaEe>
+                <useSpringBoot3>true</useSpringBoot3>
+                <interfaceOnly>true</interfaceOnly>
+                <sourceFolder>src/main/java</sourceFolder>
+                <!--                <additionalModelTypeAnnotations>@lombok.Builder @lombok.NoArgsConstructor
+                                  @lombok.AllArgsConstructor
+                                </additionalModelTypeAnnotations>-->
+              </configOptions>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>bs-hotels</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${project.basedir}/src/main/resources/clients/openapi-bs-hotels.yaml
+              </inputSpec>
+              <generatorName>java</generatorName>
+              <apiPackage>com.gino.hotel.bshotels.api</apiPackage>
+              <modelPackage>com.gino.hotel.bshotels.model</modelPackage>
+              <generateModelTests>false</generateModelTests>
+              <generateApiTests>false</generateApiTests>
+              <generateModelDocumentation>false</generateModelDocumentation>
+              <configOptions>
+                <interfaceOnly>true</interfaceOnly>
+                <library>webclient</library>
+                <useJakartaEe>true</useJakartaEe>
+                <sourceFolder>src/main/java</sourceFolder>
+              </configOptions>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

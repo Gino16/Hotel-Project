@@ -1,0 +1,579 @@
+openapi: 3.0.3
+info:
+  title: Channel Dashboard Hotels
+  description: Contrato donde se define endpoints de respuesta para front
+  version: 1.0.0
+servers:
+  - url: http://localhost:9090
+    description: Local server
+tags:
+  - name: hotel
+    description: Control every element in the hotel
+  - name: locations
+    description: Control every element in locations
+paths:
+  /hotels:
+    post:
+      tags:
+        - hotel
+      summary: Create a new hotel
+      operationId: createHotel
+      requestBody:
+        description: Hotel to add to the store
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HotelCreateRequest'
+      responses:
+        '200':
+          description: Hotel created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotelCreateResponse'
+        '400':
+          description: Invalid hotel
+        '409':
+          description: Hotel already exists
+  /hotels/sasToken:
+    post:
+      operationId: getSassToken
+      tags:
+        - hotel
+      requestBody:
+        description: Token to add save image in S3
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasTokenRequest'
+      responses:
+        '200':
+          description: Token generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasTokenResponse'
+        '400':
+          description: Invalid token
+  /hotels/{hotelId}:
+    get:
+      tags:
+        - hotel
+      summary: Get hotel by id
+      operationId: getHotelById
+      parameters:
+        - $ref: '#/components/parameters/HotelId'
+      responses:
+        '200':
+          description: Hotel response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotelDetailResponse'
+        '404':
+          description: Hotel not found
+    put:
+      tags:
+        - hotel
+      summary: Update an existing hotel
+      operationId: updateHotel
+      parameters:
+        - $ref: '#/components/parameters/HotelId'
+      requestBody:
+        description: Hotel to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HotelCreateRequest'
+      responses:
+        '200':
+          description: Hotel updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotelCreateResponse'
+        '400':
+          description: Invalid hotel
+        '404':
+          description: Hotel not found
+    delete:
+      tags:
+        - hotel
+      summary: Delete an existing hotel
+      operationId: deleteHotel
+      parameters:
+        - $ref: '#/components/parameters/HotelId'
+      responses:
+        '204':
+          description: Hotel deleted
+        '404':
+          description: Hotel not found
+  /hotels/{hotelId}/locations:
+    post:
+      tags:
+        - locations
+      summary: Create a new location
+      operationId: createLocation
+      parameters:
+        - $ref: '#/components/parameters/HotelId'
+      requestBody:
+        description: Location to add to the store
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationCreateRequest'
+      responses:
+        '201':
+          description: Location created
+        '400':
+          description: Invalid location
+        '409':
+          description: Location already exists
+    get:
+      tags:
+        - locations
+      summary: Get all locations
+      operationId: getLocations
+      parameters:
+        - $ref: '#/components/parameters/HotelId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+      responses:
+        '200':
+          description: Locations response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationListResponse'
+  /hotels/{hotelId}/locations/{locationId}:
+    get:
+      tags:
+        - locations
+      summary: Get location by id
+      operationId: getLocationById
+      parameters:
+        - $ref: '#/components/parameters/HotelId'
+        - $ref: '#/components/parameters/LocationId'
+      responses:
+        '200':
+          description: Location response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationDetailResponse'
+        '404':
+          description: Location not found
+    put:
+      tags:
+        - locations
+      summary: Update an existing location
+      operationId: updateLocation
+      parameters:
+        - $ref: '#/components/parameters/HotelId'
+        - $ref: '#/components/parameters/LocationId'
+      requestBody:
+        description: Location to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationCreateRequest'
+      responses:
+        '200':
+          description: Location updated
+        '400':
+          description: Invalid location
+        '404':
+          description: Location not found
+    delete:
+      tags:
+        - locations
+      summary: Delete an existing location
+      operationId: deleteLocation
+      parameters:
+        - $ref: '#/components/parameters/HotelId'
+        - $ref: '#/components/parameters/LocationId'
+      responses:
+        '204':
+          description: Location deleted
+        '404':
+          description: Location not found
+components:
+  parameters:
+    HotelId:
+      name: hotelId
+      in: path
+      description: ID of hotel to return
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: '19012da0-97a1-4891-ad8a-47feb2ded0a3'
+    LocationId:
+      name: locationId
+      in: path
+      description: ID of location to return
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: '19012da0-97a1-4891-ad8a-47feb2ded0a3'
+    Limit:
+      name: limit
+      in: query
+      description: Number of tags to return
+      required: false
+      schema:
+        type: integer
+        format: int32
+        example: 10
+    Offset:
+      name: offset
+      in: query
+      description: Number of tags to skip
+      required: false
+      schema:
+        type: integer
+        format: int32
+        example: 0
+    Order:
+      name: order
+      in: query
+      description: Direccion del ordenamiento
+      required: false
+      schema:
+        type: string
+        example: ASC
+        enum:
+          - ASC
+          - DESC
+        pattern: ^(ASC|DESC)$
+    Sort:
+      name: sort
+      in: query
+      description: Columna de ordenamiento
+      required: false
+      schema:
+        type: string
+        example: DOCUMENT_TYPE
+        enum:
+          - NAME
+          - DESCRIPTION
+          - RUC
+          - PHONE
+          - EMAIL
+        pattern: ^(DOCUMENT_TYPE|DESCRIPTION|RUC|PHONE|EMAIL)$
+  schemas:
+    HotelCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          pattern: ^[A-Za-z0-9áéíóúñüÁÉÍÓÚÑÜ ]*$
+          maxLength: 100
+          example: Hotel Sengor
+        description:
+          type: string
+          pattern: ^[A-Za-z0-9áéíóúñüÁÉÍÓÚÑÜ.,?¿¡!\"\' ]*$
+          maxLength: 500
+          example: Description 1
+        phone:
+          type: string
+          pattern: ^[+0-9]*$
+          maxLength: 12
+          example: +5198563215
+        email:
+          type: string
+          pattern: ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$
+          maxLength: 100
+          example: hotel@hotmail.com
+        stars:
+          type: integer
+          example: 5
+        ruc:
+          type: string
+          pattern: ^[0-9]*$
+          maxLength: 11
+          example: 12345678901
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/HotelPhoto'
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationCreateRequest'
+    HotelPhoto:
+      type: object
+      properties:
+        url:
+          type: string
+          example: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.hotel-sengor.com%2F&psig=AOvVaw1QZ2Z3Z3Z3Z3Z3Z3Z3Z3Z3&ust=1629786166166000&sour
+        pageLocation:
+          type: string
+          example: Home
+    HotelCreateResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '19012da0-97a1-4891-ad8a-47feb2ded0a3'
+    HotelListResponse:
+      type: object
+      properties:
+        hotels:
+          type: array
+          items:
+            $ref: '#/components/schemas/HotelListElementResponse'
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+    HotelListElementResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '19012da0-97a1-4891-ad8a-47feb2ded0a3'
+        name:
+          type: string
+          pattern: ^[A-Za-z0-9áéíóúñüÁÉÍÓÚÑÜ ]*$
+          maxLength: 100
+          example: Hotel Sengor
+        description:
+          type: string
+          pattern: ^[A-Za-z0-9áéíóúñüÁÉÍÓÚÑÜ.,?¿¡!\"\' ]*$
+          maxLength: 500
+          example: Description 1
+        phone:
+          type: string
+          pattern: ^[+0-9]*$
+          maxLength: 12
+          example: +5198563215
+        email:
+          type: string
+          pattern: ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$
+          maxLength: 100
+          example: a
+        stars:
+          type: integer
+          example: 5
+    HotelDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '19012da0-97a1-4891-ad8a-47feb2ded0a3'
+        name:
+          type: string
+          maxLength: 100
+          example: Hotel Sengor
+        description:
+          type: string
+          maxLength: 500
+          example: Description 1
+        ruc:
+          type: string
+          maxLength: 11
+          example: 12345678901
+        phone:
+          type: string
+          maxLength: 12
+          example: +5198563215
+        email:
+          type: string
+          maxLength: 100
+          example: a
+        stars:
+          type: integer
+          example: 5
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/HotelPhoto'
+    LocationListResponse:
+      type: object
+      properties:
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationListElementResponse'
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+    LocationListElementResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '19012da0-97a1-4891-ad8a-47feb2ded0a3'
+        name:
+          type: string
+          maxLength: 100
+          example: Location 1
+        address:
+          type: string
+          maxLength: 255
+          example: Address 1
+        latitude:
+          type: number
+          format: double
+          example: -12.0431800
+        longitude:
+          type: number
+          format: double
+          example: -77.0282400
+        phone:
+          type: string
+          maxLength: 9
+          example: +5198563215
+        email:
+          type: string
+          maxLength: 100
+          example: a
+    LocationDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '19012da0-97a1-4891-ad8a-47feb2ded0a3'
+        name:
+          type: string
+          maxLength: 100
+          example: Location 1
+        description:
+          type: string
+          maxLength: 500
+          example: Description 1
+        address:
+          type: string
+          maxLength: 255
+          example: Address 1
+        province:
+          type: string
+          maxLength: 100
+          example: Province 1
+        district:
+          type: string
+          maxLength: 100
+          example: District 1
+        latitude:
+          type: number
+          format: double
+          example: -12.0431800
+        longitude:
+          type: number
+          format: double
+          example: -77.0282400
+        phone:
+          type: string
+          maxLength: 9
+          example: +5198563215
+        email:
+          type: string
+          maxLength: 100
+          example: a
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationPhoto'
+    LocationPhoto:
+      type: object
+      properties:
+        url:
+          type: string
+          example: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.hotel-sengor.com%2F&psig=AOvVaw1QZ2Z3Z3Z3Z3Z3Z3Z3Z3Z3&ust=1629786166166000&sour
+        pageLocation:
+          type: string
+          example: Home
+    LocationCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          pattern: ^[A-Za-z0-9áéíóúñüÁÉÍÓÚÑÜ ]*$
+          maxLength: 100
+          example: Location 1
+        description:
+          type: string
+          pattern: ^[A-Za-z0-9áéíóúñüÁÉÍÓÚÑÜ.,?¿¡!\"\' ]*$
+          maxLength: 500
+          example: Description 1
+        address:
+          type: string
+          pattern: ^[A-Za-z0-9áéíóúñüÁÉÍÓÚÑÜ.,?¿¡!\"\' ]*$
+          maxLength: 255
+          example: Address 1
+        province:
+          type: string
+          pattern: ^[A-Za-z0-9áéíóúñüÁÉÍÓÚÑÜ ]*$
+          maxLength: 100
+          example: Province 1
+        district:
+          type: string
+          pattern: ^[A-Za-z0-9áéíóúñüÁÉÍÓÚÑÜ ]*$
+          maxLength: 100
+          example: District 1
+        latitude:
+          type: number
+          format: double
+          example: -12.0431800
+        longitude:
+          type: number
+          format: double
+          example: -77.0282400
+        phone:
+          type: string
+          pattern: ^[+0-9]*$
+          maxLength: 9
+          example: +5198563215
+        email:
+          type: string
+          pattern: ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$
+          maxLength: 100
+          example: hotel@hotmail.com
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationPhoto'
+    SasTokenRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          example: 1234567890
+    SasTokenResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          example: https://ux-good-clothe-store.s3.amazonaws.com/1234567890
+        sassToken:
+          type: string
+          example: 1234567890
+        fileName:
+          type: string
+          example: 1234567890
+    Metadata:
+      type: object
+      properties:
+        totalElements:
+          type: integer
+          format: int32
+          example: 10
+        limit:
+          type: integer
+          format: int32
+          example: 10
+        offset:
+          type: integer
+          format: int32
+          example: 0
